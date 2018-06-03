@@ -7,32 +7,9 @@ class App extends React.Component {
                 minutes: 0,
                 seconds: 0,
                 miliseconds: 0
-            }
+            },
+            listTime: [],
         };
-    }
-
-
-    pad0(value) {
-        let result = value.toString();
-        if (result.length < 2) {
-            result = '0' + result;
-        }
-        return result;
-    }
-
-    reset() {
-        this.setState({
-            times: {
-                minutes: 0,
-                seconds: 0,
-                miliseconds: 0
-            }
-        })
-    }
-
-
-    format(times) {
-        return `${this.pad0(times.minutes)}:${this.pad0(times.seconds)}:${this.pad0(Math.floor(times.miliseconds))}`;
     }
 
     start = () => {
@@ -49,7 +26,6 @@ class App extends React.Component {
             times: this.state.times
         })
     }
-
 
     calculate() {
         this.state.times.miliseconds += 1;
@@ -68,25 +44,27 @@ class App extends React.Component {
         clearInterval(this.watch);
     };
 
+    reset() {
+        this.state.listTime.push(this.state.times);
+        this.setState({
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            },
+            listTime: this.state.listTime
+        })
+    }
+
     resetTimer = () => {
         this.stop();
-        let span = document.querySelector('.results');
-        var li = document.createElement('li');              // Create a <li> element
-        var time = document.createTextNode(this.format(this.state.times));     // Create a text node
-        li.appendChild(time);
-        span.appendChild(li);
         this.reset();
-        let cleanButton = document.getElementById('clean');
-        cleanButton.classList.remove('hide');
     };
 
     clean = () => {
-        let span = document.querySelector('.results');
-        let li = span.querySelector('li');
-        span.querySelectorAll('li').forEach(function(li) {
-            span.removeChild(li);
-        });
-
+        this.setState({
+            listTime: []
+        })
     };
 
     render() {
@@ -96,10 +74,12 @@ class App extends React.Component {
                     <a href="#" className="button" onClick={this.start}>Start</a>
                     <a href="#" className="button" onClick={this.stop}>Stop</a>
                     <a href="#" className="button" onClick={this.resetTimer}>Reset</a>
-                    <a href="#" className="button hide" id="clean" onClick={this.clean}>Clean</a>
+                    {this.state.listTime.length > 0 &&
+                        < a href="#" className="button" onClick={this.clean}>Clean</a>
+                    }
                 </nav>
-                <Stopwatch time={this.format(this.state.times)}/>
-                <List />
+                <Stopwatch time={format(this.state.times)}/>
+                <List listTime={this.state.listTime} />
             </div>
         );
     }
